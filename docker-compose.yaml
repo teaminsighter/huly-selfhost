@@ -22,6 +22,7 @@ services:
 
   minio:
     image: minio/minio
+    container_name: minio
     restart: unless-stopped
     command: server /data --address ":9000" --console-address ":9001"
     volumes:
@@ -31,6 +32,7 @@ services:
 
   elastic:
     image: elasticsearch:7.14.2
+    container_name: elastic
     restart: unless-stopped
     command: |
       /bin/sh -c "./bin/elasticsearch-plugin list | grep -q ingest-attachment || yes | ./bin/elasticsearch-plugin install --silent ingest-attachment;
@@ -53,6 +55,7 @@ services:
 
   rekoni:
     image: hardcoreeng/rekoni-service:v0.6.502
+    container_name: rekoni
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -65,6 +68,7 @@ services:
 
   transactor:
     image: hardcoreeng/transactor:v0.6.502
+    container_name: transactor
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -78,6 +82,7 @@ services:
 
   collaborator:
     image: hardcoreeng/collaborator:v0.6.502
+    container_name: collaborator
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -87,6 +92,7 @@ services:
 
   account:
     image: hardcoreeng/account:v0.6.502
+    container_name: account
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -100,6 +106,7 @@ services:
 
   workspace:
     image: hardcoreeng/workspace:v0.6.502
+    container_name: workspace
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -110,11 +117,12 @@ services:
 
   front:
     image: hardcoreeng/front:v0.6.502
+    container_name: front
     restart: unless-stopped
     environment:
       <<: *common-env
       SERVER_PORT: 8080
-      ACCOUNTS_URL: https://team.insighter.digital/accounts
+      ACCOUNTS_URL: http://account:3000
       REKONI_URL: http://rekoni:4004
       CALENDAR_URL: http://calendar:8095
       GMAIL_URL: http://gmail:8088
@@ -131,9 +139,17 @@ services:
       - "8080:8080"
     networks:
       - huly-net
+    depends_on:
+      - mongodb
+      - minio
+      - elastic
+      - account
+      - transactor
+      - collaborator
 
   fulltext:
     image: hardcoreeng/fulltext:v0.6.502
+    container_name: fulltext
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -145,6 +161,7 @@ services:
 
   stats:
     image: hardcoreeng/stats:v0.6.502
+    container_name: stats
     restart: unless-stopped
     environment:
       <<: *common-env
@@ -154,7 +171,7 @@ services:
 
 networks:
   huly-net:
-    name: huly-net
+    driver: bridge
 
 volumes:
   db:
