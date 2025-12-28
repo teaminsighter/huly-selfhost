@@ -135,8 +135,6 @@ services:
       TITLE: Huly Self Host
       DEFAULT_LANGUAGE: en
       LAST_NAME_FIRST: true
-    ports:
-      - "8080:8080"
     networks:
       - huly-net
     depends_on:
